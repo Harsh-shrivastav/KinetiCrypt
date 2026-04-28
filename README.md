@@ -89,7 +89,7 @@ KinetiCrypt aligns with **UN Sustainable Development Goal 9: Industry, Innovatio
 ## 👨‍💻 Author
 
 **Harsh Shrivastav**  
-Built for the Google Solution Challenge 202.
+Built for the Google Solution Challenge 2026.
 
 ---
 
