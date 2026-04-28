@@ -45,13 +45,8 @@ body {
 }
 
 @keyframes meshShift {
-  0% {
-    background-position: 0% 0%, 100% 0%, 50% 100%, 0% 0%;
-  }
-
-  100% {
-    background-position: 100% 100%, 0% 100%, 50% 0%, 0% 0%;
-  }
+  0% { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 0%; }
+  100% { background-position: 100% 100%, 0% 100%, 50% 0%, 0% 0%; }
 }
 
 /* ─── Glassmorphism Cards ───────────────────────────────────── */
@@ -241,32 +236,9 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes scan-line {
-  0% {
-    transform: translateY(-100%);
-  }
-
-  100% {
-    transform: translateY(100vh);
   }
 }
 
@@ -300,27 +272,7 @@ body {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ─── Scrollbar ─────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  to { transform: rotate(360deg); }
 }
 
 /* ─── Certificate Decorations ───────────────────────────────── */
@@ -334,11 +286,13 @@ body {
   inset: -1px;
   border-radius: 1.25rem;
   padding: 1px;
-  background: linear-gradient(135deg,
-      rgba(0, 240, 255, 0.3),
-      rgba(168, 85, 247, 0.2),
-      rgba(244, 114, 182, 0.2),
-      rgba(0, 240, 255, 0.3));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 240, 255, 0.3),
+    rgba(168, 85, 247, 0.2),
+    rgba(244, 114, 182, 0.2),
+    rgba(0, 240, 255, 0.3)
+  );
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;

@@ -1,9 +1,11 @@
 "use client";
+
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
+import { QRCodeSVG } from "qrcode.react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -25,6 +27,7 @@ export default function CertificatePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,20 +43,11 @@ export default function CertificatePage() {
     setDownloading(true);
     try {
       const dataUrl = await toPng(certRef.current, { backgroundColor: "#0a0a1a", pixelRatio: 2 });
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pdfWidth = pdf.internal.pageSize.getWidth();
-
-      // We need to create an image element to get its dimensions
       const img = new Image();
       img.src = dataUrl;
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
-
+      await new Promise((resolve) => { img.onload = resolve; });
       const pdfHeight = (img.height * pdfWidth) / img.width;
       pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save("KinetiCrypt_Certificate.pdf");
@@ -64,11 +58,19 @@ export default function CertificatePage() {
     }
   };
 
+  const copyToClipboard = () => {
+    if (cert?.assetHash) {
+      navigator.clipboard.writeText(cert.assetHash);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   if (loading) return (
     <main className="flex items-center justify-center min-h-screen">
       <div className="text-center space-y-4 animate-fade-in">
         <div className="spinner mx-auto !w-10 !h-10 !border-[3px]" />
-        <p className="text-slate-400 text-sm">Loading certificate...</p>
+        <p className="text-slate-400 text-sm">Verifying Cryptographic Ledger...</p>
       </div>
     </main>
   );
@@ -92,21 +94,6 @@ export default function CertificatePage() {
     .map(l => l.replace(/^[\s•\-*]+/, "").trim())
     .filter(l => l.length > 0);
 
-  // Determine badge styling based on status
-  let badgeStyle = "text-red-400 bg-red-500/10 border-red-500/20 shadow-red-500/10";
-  let pulseColor = "bg-red-400";
-  let displayStatus = "❌ Not Found";
-
-  if (cert.status === "Minted" || cert.status === "Verified") {
-    badgeStyle = "text-green-400 bg-green-500/10 border-green-500/20 shadow-green-500/10";
-    pulseColor = "bg-green-400";
-    displayStatus = "✅ Verified Original";
-  } else if (cert.status === "Duplicate") {
-    badgeStyle = "text-amber-400 bg-amber-500/10 border-amber-500/20 shadow-amber-500/10";
-    pulseColor = "bg-amber-400";
-    displayStatus = "⚠️ Duplicate Detected";
-  }
-
   return (
     <main className="flex flex-col items-center justify-center min-h-screen px-4 py-12">
       <div className="w-full max-w-2xl flex items-center justify-between mb-8 animate-fade-in">
@@ -114,16 +101,16 @@ export default function CertificatePage() {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
           Back
         </Link>
-        <div className={`status-badge border shadow-[0_0_16px_rgba(0,0,0,0.08)] ${badgeStyle}`}>
-          <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${pulseColor}`} />
-          {displayStatus}
+        <div className="status-badge minted">
+          <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          Verified Original
         </div>
       </div>
 
       <div ref={certRef} className="glass-card cert-border w-full max-w-2xl p-10 animate-fade-in-delay-1 relative bg-[#0a0a1a]">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
               <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
               </svg>
@@ -146,8 +133,13 @@ export default function CertificatePage() {
           </div>
         </div>
 
-        <div className="mb-8">
-          <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2">SHA-256 Cryptographic Hash</p>
+        <div className="mb-8 relative group">
+          <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-2 flex justify-between items-center">
+            SHA-256 Cryptographic Hash
+            <button onClick={copyToClipboard} className="text-cyan-400 hover:text-white transition-colors text-[9px] uppercase tracking-widest">
+              {copied ? "Copied!" : "Copy Hash"}
+            </button>
+          </p>
           <div className="hash-display">
             <span className="text-[10px] text-slate-500 block mb-1">sha256://</span>
             {cert.assetHash}
@@ -190,23 +182,36 @@ export default function CertificatePage() {
           </ul>
         </div>
 
-        <div className="neon-divider mb-6" />
+        <div className="neon-divider mb-8" />
 
-        <div className="text-center">
-          <p className="text-[10px] text-slate-600 tracking-wider">CERTIFICATE ID: {cert.id}</p>
-          <p className="text-[10px] text-slate-600 mt-1">Verified by KinetiCrypt Digital Provenance Engine</p>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-4">
+          <div className="text-center md:text-left">
+            <p className="text-[10px] text-slate-600 tracking-wider uppercase">Certificate ID: {cert.id}</p>
+            <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest">Verified by KinetiCrypt Engine</p>
+          </div>
+          <div className="p-2 bg-white rounded-xl shadow-lg">
+            <QRCodeSVG 
+              value={typeof window !== 'undefined' ? window.location.href : ''} 
+              size={70} 
+              bgColor="#ffffff" 
+              fgColor="#0a0a1a" 
+              level="M"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="mt-8 flex gap-4 animate-fade-in-delay-3">
-        <Link href="/" className="btn-neon text-sm py-2">Mint Another</Link>
-        <button
-          onClick={handleDownloadPDF}
+      <div className="mt-10 flex gap-4 animate-fade-in-delay-3">
+        <button 
+          onClick={handleDownloadPDF} 
           disabled={downloading}
-          className="btn-neon text-sm py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30"
+          className="btn-neon"
         >
           {downloading ? "Generating PDF..." : "Download PDF"}
         </button>
+        <Link href="/" className="btn-neon !bg-white/5 !border-white/10 hover:!bg-white/10 transition-all">
+          Mint Another
+        </Link>
       </div>
     </main>
   );
