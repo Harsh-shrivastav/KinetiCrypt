@@ -1,7 +1,5 @@
 # KinetiCrypt: Digital Asset Provenance Engine
 
-[![Google Solution Challenge 2024](https://img.shields.io/badge/Google-Solution%20Challenge%202024-4285F4?style=for-the-badge&logo=google)](https://developers.google.com/community/gdsc-solution-challenge)
-[![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Google%20Gemini-orange?style=for-the-badge&logo=google-gemini)](https://deepmind.google/technologies/gemini/)
 
 **KinetiCrypt** is a decentralized provenance registry designed to protect the intellectual property of digital creators. By combining cryptographic hashing with advanced multimodal AI (Gemini 2.5 Flash), KinetiCrypt allows creators to "mint" an immutable proof of existence and ownership for their digital assets.
 
@@ -91,7 +89,7 @@ KinetiCrypt aligns with **UN Sustainable Development Goal 9: Industry, Innovatio
 ## 👨‍💻 Author
 
 **Harsh Shrivastav**  
-Built for the Google Solution Challenge 2024.
+Built for the Google Solution Challenge 202.
 
 ---
 
